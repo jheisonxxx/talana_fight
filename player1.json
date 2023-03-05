@@ -1,0 +1,28 @@
+{
+  "first_name": "Tonyn",
+  "last_name": "Stallone",
+  "current_energy": 6,
+  "movements": {
+    "W": "salta",
+    "D": "avanza",
+    "S": "se agacha"
+  },
+  "attacks": {
+    "DSDP": {
+      "message": "usa un Talodaken",
+      "energy": 3
+    },
+    "SDK": {
+      "message": "conecta un Remuyuken",
+      "energy": 2
+    },
+    "K": {
+      "message": "da una patada",
+      "energy": 1
+    },
+    "P": {
+      "message": "da un puñete",
+      "energy": 1
+    }
+  }
+}

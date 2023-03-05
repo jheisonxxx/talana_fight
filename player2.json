@@ -1,0 +1,28 @@
+{
+  "first_name": "Arnaldor",
+  "last_name": "Shuatseneguer",
+  "current_energy": 6,
+  "movements": {
+    "A": "avanza",
+    "S": "se agacha",
+    "W": "salta"
+  },
+  "attacks": {
+    "SAK": {
+      "message": "conecta un Remuyuken",
+      "energy": 3
+    },
+    "ASAP": {
+      "message": "usa un Talodaken",
+      "energy": 2
+    },
+    "K": {
+      "message": "da un puñete",
+      "energy": 1
+    },
+    "P": {
+      "message": "da una patada",
+      "energy": 1
+    }
+  }
+}
