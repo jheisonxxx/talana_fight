@@ -26,7 +26,7 @@ class Player:
 
     def get_movements_and_attack(self, movement, blow):
         """
-        get_movements_and_attack get if its an attack in the conbination of movements more blows
+        get_movements_and_attack get if it is an attack in the conbination of movements more blows
         :param movement: secuence of movements in a turn
         :param blow: unique button of blow in a turn
         :return: a tuple with movements and attack
@@ -41,25 +41,27 @@ class Player:
             m = m + 1
         return movement[0:m], attack
 
-    def tell_turn_battle(self, movement, blow):
+    def tell_turn_battle(self, movement, blow, player):
         """
         tell_story print the history in a turn
         :param movement: secuence of movements in a turn
         :param blow: unique button of blow in a turn
+        :param player: a player to decrease energy
         :void: Only print a turn of the history
         """
         movements, attack = self.get_movements_and_attack(movement, blow)
         if len(movements) > 1 and len(attack) > 0:
             print(f'{self.first_name} se movio y {self.attacks[attack]["message"]}')
-            self.current_energy -= self.attacks[attack]["energy"]
+            player.current_energy -= self.attacks[attack]["energy"]
         elif len(movements) == 1 and len(attack) > 0:
             print(f'{self.first_name} {self.movements[movements]} y {self.attacks[attack]["message"]}')
-            self.current_energy -= self.attacks[attack]["energy"]
+            player.current_energy -= self.attacks[attack]["energy"]
         elif len(movements) == 0 and len(attack) > 0:
             print(f'{self.first_name} {self.attacks[attack]["message"]}')
-            self.current_energy -= self.attacks[attack]["energy"]
+            player.current_energy -= self.attacks[attack]["energy"]
         elif len(attack) == 0:
             print(f'{self.first_name} se movio')
+        return player
 
 
 def initialize_players():
@@ -91,45 +93,51 @@ def check_battle_requirements(json_battle, max_len_movement):
         if len(movement) > 5:
             print(
                 f'No se puede iniciar la pelea por que el turno {index}({movement}) del jugador {player1.first_name}(player1) tiene mas de {max_len_movement} movimientos')
-
+            return False
         if len(blows_player1[index]) > 1:
             print(
                 f'No se puede iniciar la pelea por que el turno {index}({blows_player1[index]}) del jugador {player1.first_name}(player1) tiene mas de un golpe')
+            return False
 
     movements_player2 = json_battle["player2"]["movimientos"]
     blows_player2 = json_battle["player2"]["golpes"]
     for index, movement in enumerate(movements_player2):
         if len(movement) > 5:
             print(
-                f'No se puede iniciar la pelea por que el turno {index}({movement}) del jugador {player1.first_name}(player1) tiene mas de {max_len_movement} movimientos')
+                f'No se puede iniciar la pelea por que en el turno {index}({movement}) del jugador {player1.first_name}(player1) tiene mas de {max_len_movement} movimientos')
+            return False
 
-        if len(blows_player1[index]) > 1:
+        if len(blows_player2[index]) > 1:
             print(
-                f'No se puede iniciar la pelea por que el turno {index}({blows_player2[index]}) del jugador {player2.first_name}(player2) tiene mas de un golpe')
+                f'No se puede iniciar la pelea por que en el turno {index}({blows_player2[index]}) del jugador {player2.first_name}(player2) tiene mas de un golpe')
+            return False
+    return True
 
 
 def tell_battle(json_battle, player1, player2):
-
+    # Telling the battle for each turn
     for index in range(max(len(json_battle["player1"]["movimientos"]), len(json_battle["player2"]["movimientos"]))):
         if index < len(json_battle["player1"]["movimientos"]):
-            player1.tell_turn_battle(json_battle["player1"]["movimientos"][index],
-                                     json_battle["player1"]["golpes"][index])
-        if index < len(json_battle["player2"]["movimientos"]):
-            player2.tell_turn_battle(json_battle["player2"]["movimientos"][index],
-                                     json_battle["player2"]["golpes"][index])
-        if player1.current_energy == 0:
-            print(
-                f'{player2.first_name} acaba de ganar y le queda {player2.current_energy} de energia')
-            break
-        if player2.current_energy == 0:
+            player2 = player1.tell_turn_battle(json_battle["player1"]["movimientos"][index],
+                                               json_battle["player1"]["golpes"][index], player2)
+        if player2.current_energy <= 0:
             print(
                 f'{player1.first_name} acaba de ganar y le queda {player1.current_energy} de energia')
+            break
+
+        if index < len(json_battle["player2"]["movimientos"]):
+            player1 = player2.tell_turn_battle(json_battle["player2"]["movimientos"][index],
+                                               json_battle["player2"]["golpes"][index], player1)
+
+        if player1.current_energy <= 0:
+            print(
+                f'{player2.first_name} acaba de ganar y le queda {player2.current_energy} de energia')
             break
 
 
 if __name__ == '__main__':
     player1, player2 = initialize_players()
-    json_battle = {"player1": {"movimientos": ["D", "DSD", "S", "DSD", "SD"], "golpes": ["K", "P", "", "K", "P"]},
+    json_battle = {"player1": {"movimientos": ["D", "DSD", "S", "DSD", "SD"], "golpes": ["K", "P", "K", "K", "P"]},
                    "player2": {"movimientos": ["SA", "SA", "SA", "ASA", "SA"], "golpes": ["K", "", "K", "P", "P"]}}
     check_battle_requirements(json_battle, max_len_movement=5)
     tell_battle(json_battle, player1, player2)
